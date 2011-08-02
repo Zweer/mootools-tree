@@ -20,7 +20,7 @@ provides: Collapse
 
 this.Collapse = new Class({
 
-	Implements: [Options, Class.Singleton],
+	Implements: [Options, Class.Singleton, Events],
 
 	options: {
 		animate: true,
@@ -28,7 +28,14 @@ this.Collapse = new Class({
 		className: 'collapse',
 		selector: 'a.expand',
 		listSelector: 'li',
-		childSelector: 'ul'
+		childSelector: 'ul',
+
+        onExpand: function(element){
+            element.getElement(this.options.childSelector).setStyle('display', 'block');
+        },
+        onCollapse: function(element){
+            element.getElement(this.options.childSelector).setStyle('display', 'none');
+        }
 	},
 
 	initialize: function(element, options){
@@ -102,7 +109,7 @@ this.Collapse = new Class({
 	},
 
 	isCollapsed: function(element){
-		return (element.getStyle('display') == 'none');
+		return (element.retrieve('hidden'));
 	},
 
 	toggle: function(element, event){
@@ -117,13 +124,15 @@ this.Collapse = new Class({
 	},
 
 	expand: function(element){
-		element.getElement(this.options.childSelector).setStyle('display', 'block');
+		this.fireEvent('expand', element);
+        element.getElement(this.options.childSelector).store('hidden', false);
 		element.getElement(this.options.selector).addClass(this.options.className);
 		return this;
 	},
 
 	collapse: function(element){
-		element.getElement(this.options.childSelector).setStyle('display', 'none');
+		this.fireEvent('collapse', element);
+        element.getElement(this.options.childSelector).store('hidden', true);
 		element.getElement(this.options.selector).removeClass(this.options.className);
 		return this;
 	}
